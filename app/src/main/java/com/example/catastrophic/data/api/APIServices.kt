@@ -1,4 +1,4 @@
-package com.example.catastrophic.data
+package com.example.catastrophic.data.api
 
 import com.example.catastrophic.model.ImageResponse
 import io.reactivex.Single

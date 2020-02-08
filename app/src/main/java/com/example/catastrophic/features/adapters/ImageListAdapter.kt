@@ -71,7 +71,7 @@ class ImageDiffCallback(private val oldList: List<ImageModel>, private val newLi
     DiffUtil.Callback() {
 
     override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        return oldList[oldItemPosition].getId() == newList[newItemPosition].getId()
+        return oldList[oldItemPosition].getImageId() == newList[newItemPosition].getImageId()
     }
 
     override fun getOldListSize(): Int {
@@ -83,7 +83,7 @@ class ImageDiffCallback(private val oldList: List<ImageModel>, private val newLi
     }
 
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        return oldList[oldItemPosition].getId() == newList[newItemPosition].getId()
+        return oldList[oldItemPosition].getImageId() == newList[newItemPosition].getImageId()
     }
 
 }

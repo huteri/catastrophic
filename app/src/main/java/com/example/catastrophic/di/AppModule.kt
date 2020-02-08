@@ -1,6 +1,9 @@
 package com.example.catastrophic.di
 
-import com.example.catastrophic.data.APIServices
+import android.content.Context
+import androidx.room.Room
+import com.example.catastrophic.data.api.APIServices
+import com.example.catastrophic.data.dao.AppDatabase
 import com.example.catastrophic.data.repository.ImageRepository
 import com.example.catastrophic.data.repository.ImageRepositoryImpl
 import com.example.catastrophic.util.schedulers.DefaultSchedulerProvider
@@ -17,7 +20,6 @@ import javax.inject.Singleton
 
 @Module
 class AppModule {
-
 
     @Singleton
     @Provides
@@ -48,8 +50,14 @@ class AppModule {
 
     @Singleton
     @Provides
-    fun provideImageRepository(apiService: APIServices): ImageRepository {
-        return ImageRepositoryImpl(apiService)
+    fun provideAppDatabase(context: Context): AppDatabase {
+        return Room.databaseBuilder(context, AppDatabase::class.java, "app-database").build()
+    }
+
+    @Singleton
+    @Provides
+    fun provideImageRepository(apiService: APIServices, appDatabase: AppDatabase): ImageRepository {
+        return ImageRepositoryImpl(apiService, appDatabase)
     }
 
     @Singleton
