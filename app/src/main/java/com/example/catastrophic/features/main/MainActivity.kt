@@ -10,6 +10,7 @@ import com.example.catastrophic.App
 import com.example.catastrophic.features.base.BaseActivity
 import com.example.catastrophic.features.adapters.ImageListAdapter
 import com.example.catastrophic.util.EndlessRecyclerViewScrollListener
+import com.example.catastrophic.util.PercentageCheckRecyclerViewScrollListener
 import kotlinx.android.synthetic.main.activity_main.*
 import javax.inject.Inject
 
@@ -38,12 +39,32 @@ class MainActivity : BaseActivity() {
     }
 
     private fun initrvList() {
-        rvData.layoutManager = GridLayoutManager(this, 3)
+        var gridLayoutManager = GridLayoutManager(this, 3)
+        rvData.layoutManager = gridLayoutManager
         imageListAdapter = ImageListAdapter(this)
         rvData.adapter = imageListAdapter
         rvData.addOnScrollListener(object : EndlessRecyclerViewScrollListener(rvData?.layoutManager!!) {
             override fun onLoadMore(page: Int, totalItemsCount: Int, view: RecyclerView) {
                 vm.loadMore()
+            }
+
+        })
+
+        rvData.addOnScrollListener(object : PercentageCheckRecyclerViewScrollListener(gridLayoutManager) {
+            var showOverlay = mutableListOf<Int>()
+
+            override fun onViewChecked(position: Int, percentage: Double) {
+
+                if(percentage >= 80)
+                    showOverlay.add(position)
+            }
+
+            override fun onComplete(totalChecked: Int, firstPosition: Int, lastPosition: Int) {
+
+                rvData.post {
+                    imageListAdapter.updateOverlay(showOverlay, firstPosition, lastPosition)
+                    showOverlay.clear()
+                }
             }
 
         })

@@ -15,6 +15,7 @@ import kotlinx.android.synthetic.main.item_image.*
 class ImageListAdapter(val context: Context) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private val list = mutableListOf<ImageModel>()
+    private val showOverlay = mutableListOf<Int>()
 
 
     init {
@@ -41,7 +42,7 @@ class ImageListAdapter(val context: Context) : RecyclerView.Adapter<RecyclerView
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        (holder as ImageViewHolder).onBind(list[position])
+        (holder as ImageViewHolder).onBind(position)
     }
 
     fun updateData(list: List<ImageModel>) {
@@ -55,11 +56,25 @@ class ImageListAdapter(val context: Context) : RecyclerView.Adapter<RecyclerView
         diffResult.dispatchUpdatesTo(this)
     }
 
+    fun updateOverlay(showOverlay: MutableList<Int>, firstPosition: Int, lastPosition: Int) {
+        this.showOverlay.clear()
+        this.showOverlay.addAll(showOverlay)
+
+        notifyDataSetChanged()
+    }
+
     inner class ImageViewHolder(override val containerView: View?) :
         RecyclerView.ViewHolder(containerView!!), LayoutContainer {
 
-        fun onBind(imageModel: ImageModel) {
+        fun onBind(position: Int) {
+            val imageModel = list[position]
+
             Glide.with(context).load(imageModel.getUrl()).into(ivImage)
+
+            if (showOverlay.contains(position))
+                ivOverlay.visibility = View.VISIBLE
+            else
+                ivOverlay.visibility = View.GONE
 
         }
     }
@@ -67,7 +82,10 @@ class ImageListAdapter(val context: Context) : RecyclerView.Adapter<RecyclerView
 }
 
 
-class ImageDiffCallback(private val oldList: List<ImageModel>, private val newList: List<ImageModel>):
+class ImageDiffCallback(
+    private val oldList: List<ImageModel>,
+    private val newList: List<ImageModel>
+) :
     DiffUtil.Callback() {
 
     override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
@@ -75,7 +93,7 @@ class ImageDiffCallback(private val oldList: List<ImageModel>, private val newLi
     }
 
     override fun getOldListSize(): Int {
-       return oldList.size
+        return oldList.size
     }
 
     override fun getNewListSize(): Int {
