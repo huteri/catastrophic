@@ -49,6 +49,25 @@ class MainViewModelTest : BaseViewModelTest() {
         assertEquals(viewModel.imageListLiveData.value?.size, 6)
     }
 
+    @Test
+    fun `pinch list with scale factory more than 1 and isZoomIn false will need to zoom in`() {
+
+        viewModel.pinchList(1.1f)
+        assertEquals(viewModel.needtoZoomIn.value, true)
+
+    }
+
+    @Test
+    fun `pinch list with scale factor less than 1 and isZoomIn true will need to zoom out`() {
+
+        //set isZoomIn to true
+        viewModel.pinchList(1.1f)
+
+        viewModel.pinchList(0.9f)
+        assertEquals(viewModel.needtoZoomIn.value, false)
+
+    }
+
 
     private fun initLiveData() {
         viewModel.imageListLiveData.observeForever { }

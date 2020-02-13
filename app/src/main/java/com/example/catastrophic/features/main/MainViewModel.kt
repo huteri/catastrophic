@@ -1,5 +1,6 @@
 package com.example.catastrophic.features.main
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.example.catastrophic.features.base.BaseViewModel
 import com.example.catastrophic.data.repository.ImageRepository
@@ -15,7 +16,10 @@ class MainViewModel @Inject constructor(
     private var currentPage = 1
     private var currentList = mutableListOf<ImageModel>()
 
+    private var isZoomIn = false
+
     val imageListLiveData = MutableLiveData<List<ImageModel>>()
+    val needtoZoomIn = MutableLiveData<Boolean>()
 
     private val compositeDisposable = CompositeDisposable()
 
@@ -39,6 +43,18 @@ class MainViewModel @Inject constructor(
     fun loadMore() {
         currentPage++
         loadImageList()
+    }
+
+    fun pinchList(scaleFactor: Float) {
+
+        if (scaleFactor > 1 && !isZoomIn) {
+            isZoomIn = true
+            needtoZoomIn.value = true
+        } else if (scaleFactor < 1 && isZoomIn) {
+            isZoomIn = false
+            needtoZoomIn.value = false
+        }
+
     }
 
 }
