@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 import com.example.catastrophic.model.Image
 
 
-@Database(entities = [Image::class], version = 1)
+@Database(entities = [Image::class], version = 2)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun imageDao(): ImageDao
 }

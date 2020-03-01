@@ -24,8 +24,8 @@ class ImageRepositoryImpl(
 
         val disk = appDatabase.imageDao()
             .getImages(ImageRepository.PER_PAGE_LIMIT, ImageRepository.PER_PAGE_LIMIT * (page-1))
-        var api = apiServices.getImages().doOnSuccess { list ->
-            appDatabase.imageDao().insertOrUpdate(list.map { it.toImage() })
+        var api = apiServices.getImages().map { list -> list.map { it.toImage() } }.doOnSuccess { list ->
+            appDatabase.imageDao().insertOrUpdate(list)
         }
 
         return disk.flatMap {
@@ -34,7 +34,7 @@ class ImageRepositoryImpl(
             } else {
                 Single.just(it)
             }
-        }.toObservable()
+        }.map { list -> list.map { it.toImageModel() } }.toObservable()
     }
 
 }

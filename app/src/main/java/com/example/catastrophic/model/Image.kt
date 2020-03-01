@@ -9,34 +9,25 @@ import androidx.room.PrimaryKey
 @Entity
 data class Image(
     @PrimaryKey @NonNull val id: String,
-    @ColumnInfo(name = "url") private val url: String
-) : ImageModel {
-    override fun getImageId(): String {
-        return id
-    }
-
-    override fun getUrl(): String {
-        return url
+    @ColumnInfo(name = "url") val url: String
+)  {
+    fun toImageModel(): ImageModel {
+        return ImageModel(imageId = id, url = url)
     }
 }
 
 data class ImageResponse(
     private val id: String,
     private val url: String
-) : ImageModel {
-    override fun getUrl(): String {
-        return url
-    }
-
-    override fun getImageId(): String = id
+)  {
 
     fun toImage(): Image {
         return Image(id, url)
     }
 }
 
-
-interface ImageModel {
-    fun getImageId(): String
-    fun getUrl(): String
-}
+data class ImageModel(
+    var showOverlay: Boolean = false,
+    val imageId: String,
+    val url: String
+)

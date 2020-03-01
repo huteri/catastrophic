@@ -69,10 +69,8 @@ class MainActivity : BaseActivity() {
 
             override fun onComplete(totalChecked: Int, firstPosition: Int, lastPosition: Int) {
 
-                rvData.post {
-                    imageListAdapter.updateOverlay(showOverlay, firstPosition, lastPosition)
-                    showOverlay.clear()
-                }
+                vm.updatOverlay(showOverlay)
+                showOverlay.clear()
             }
 
         })

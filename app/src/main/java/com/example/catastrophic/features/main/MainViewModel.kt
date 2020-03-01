@@ -1,6 +1,5 @@
 package com.example.catastrophic.features.main
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.example.catastrophic.features.base.BaseViewModel
 import com.example.catastrophic.data.repository.ImageRepository
@@ -55,6 +54,11 @@ class MainViewModel @Inject constructor(
             needtoZoomIn.value = false
         }
 
+    }
+
+    fun updatOverlay(showOverlay: MutableList<Int>) {
+        currentList.forEachIndexed { index, imageModel -> imageModel.showOverlay = showOverlay.contains(index) }
+        imageListLiveData.value = currentList
     }
 
 }

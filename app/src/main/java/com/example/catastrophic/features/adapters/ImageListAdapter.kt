@@ -4,6 +4,8 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -14,9 +16,7 @@ import kotlinx.android.synthetic.main.item_image.*
 
 class ImageListAdapter(val context: Context) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private val list = mutableListOf<ImageModel>()
-    private val showOverlay = mutableListOf<Int>()
-
+    private val differ = AsyncListDiffer<ImageModel>(this, ImageDiffCallback())
 
     init {
         setHasStableIds(true)
@@ -34,7 +34,7 @@ class ImageListAdapter(val context: Context) : RecyclerView.Adapter<RecyclerView
     }
 
     override fun getItemCount(): Int {
-        return list.size
+        return differ.currentList.size
     }
 
     override fun getItemId(position: Int): Long {
@@ -45,63 +45,59 @@ class ImageListAdapter(val context: Context) : RecyclerView.Adapter<RecyclerView
         (holder as ImageViewHolder).onBind(position)
     }
 
-    fun updateData(list: List<ImageModel>) {
-
-        val diffCallback = ImageDiffCallback(this.list, list)
-        val diffResult = DiffUtil.calculateDiff(diffCallback)
-
-        this.list.clear()
-        this.list.addAll(list)
-
-        diffResult.dispatchUpdatesTo(this)
+    override fun onBindViewHolder(
+        holder: RecyclerView.ViewHolder,
+        position: Int,
+        payloads: MutableList<Any>
+    ) {
+        if(payloads.isEmpty())
+            super.onBindViewHolder(holder, position, payloads)
+        else {
+            (holder as ImageViewHolder).onPayloadChanged(position, payloads)
+        }
     }
 
-    fun updateOverlay(showOverlay: MutableList<Int>, firstPosition: Int, lastPosition: Int) {
-        this.showOverlay.clear()
-        this.showOverlay.addAll(showOverlay)
-
-        notifyDataSetChanged()
+    fun updateData(list: List<ImageModel>) {
+        differ.submitList(list.map { it.copy() })
     }
 
     inner class ImageViewHolder(override val containerView: View?) :
         RecyclerView.ViewHolder(containerView!!), LayoutContainer {
 
         fun onBind(position: Int) {
-            val imageModel = list[position]
+            val imageModel = differ.currentList[position]
 
-            Glide.with(context).load(imageModel.getUrl()).into(ivImage)
+            Glide.with(context).load(imageModel.url).into(ivImage)
 
-            if (showOverlay.contains(position))
+        }
+
+        fun onPayloadChanged(position: Int, payloads: MutableList<Any>) {
+
+            val newItem = payloads[0] as ImageModel
+
+            if (newItem.showOverlay)
                 ivOverlay.visibility = View.VISIBLE
             else
                 ivOverlay.visibility = View.GONE
-
         }
     }
 
 }
 
 
-class ImageDiffCallback(
-    private val oldList: List<ImageModel>,
-    private val newList: List<ImageModel>
-) :
-    DiffUtil.Callback() {
+class ImageDiffCallback :
+    DiffUtil.ItemCallback<ImageModel>() {
 
-    override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        return oldList[oldItemPosition].getImageId() == newList[newItemPosition].getImageId()
+    override fun areItemsTheSame(oldItem: ImageModel, newItem: ImageModel): Boolean {
+        return oldItem.imageId == newItem.imageId
     }
 
-    override fun getOldListSize(): Int {
-        return oldList.size
+    override fun areContentsTheSame(oldItem: ImageModel, newItem: ImageModel): Boolean {
+        return oldItem.imageId == newItem.imageId && oldItem.showOverlay == newItem.showOverlay && oldItem.url == newItem.url
     }
 
-    override fun getNewListSize(): Int {
-        return newList.size
-    }
-
-    override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        return oldList[oldItemPosition].getImageId() == newList[newItemPosition].getImageId()
+    override fun getChangePayload(oldItem: ImageModel, newItem: ImageModel): Any? {
+        return newItem
     }
 
 }
