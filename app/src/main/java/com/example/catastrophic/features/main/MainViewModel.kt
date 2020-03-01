@@ -31,8 +31,10 @@ class MainViewModel @Inject constructor(
         compositeDisposable.add(
             imageRepository.getImages(currentPage)
                 .compose(applySchedulers())
-                .subscribe({
-                    currentList.addAll(it)
+                .subscribe({ list ->
+                    var ids = list.map { it.imageId }
+                    currentList.removeAll { ids.contains(it.imageId) }
+                    currentList.addAll(list)
 
                     imageListLiveData.value = currentList
                 }, { it.printStackTrace() })

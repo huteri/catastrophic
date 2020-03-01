@@ -1,6 +1,7 @@
 package com.example.catastrophic.features.adapters
 
 import android.content.Context
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -73,12 +74,20 @@ class ImageListAdapter(val context: Context) : RecyclerView.Adapter<RecyclerView
 
         fun onPayloadChanged(position: Int, payloads: MutableList<Any>) {
 
-            val newItem = payloads[0] as ImageModel
+            val payload = payloads[0] as Bundle
 
-            if (newItem.showOverlay)
-                ivOverlay.visibility = View.VISIBLE
-            else
-                ivOverlay.visibility = View.GONE
+            if(payload.containsKey(ImageDiffCallback.PAYLOAD_IMAGE_URL_CHANGED)) {
+                Glide.with(context).load(payload.getString(ImageDiffCallback.PAYLOAD_IMAGE_URL_CHANGED)).into(ivImage)
+            }
+
+            if(payload.containsKey(ImageDiffCallback.PAYLOAD_SHOW_OVERLAY_CHANGED)) {
+                val newOverlay = payload.getBoolean(ImageDiffCallback.PAYLOAD_SHOW_OVERLAY_CHANGED)
+
+                if (newOverlay)
+                    ivOverlay.visibility = View.VISIBLE
+                else
+                    ivOverlay.visibility = View.GONE
+            }
         }
     }
 
@@ -97,7 +106,21 @@ class ImageDiffCallback :
     }
 
     override fun getChangePayload(oldItem: ImageModel, newItem: ImageModel): Any? {
-        return newItem
+        val bundle = Bundle()
+
+        if(oldItem.showOverlay != newItem.showOverlay)
+            bundle.putBoolean(PAYLOAD_SHOW_OVERLAY_CHANGED, newItem.showOverlay)
+
+        if(oldItem.url != newItem.url)
+            bundle.putString(PAYLOAD_IMAGE_URL_CHANGED, newItem.url)
+
+        return bundle
+    }
+
+
+    companion object {
+        const val PAYLOAD_SHOW_OVERLAY_CHANGED = "show_overlay"
+        const val PAYLOAD_IMAGE_URL_CHANGED = "image_urL"
     }
 
 }

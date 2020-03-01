@@ -1,6 +1,5 @@
 package com.example.catastrophic.model
 
-import androidx.annotation.NonNull
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -8,7 +7,8 @@ import androidx.room.PrimaryKey
 
 @Entity
 data class Image(
-    @PrimaryKey @NonNull val id: String,
+    @PrimaryKey(autoGenerate = true) var id: Int = 0,
+    @ColumnInfo(name="imageId") val imageId: String,
     @ColumnInfo(name = "url") val url: String
 )  {
     fun toImageModel(): ImageModel {
@@ -22,12 +22,12 @@ data class ImageResponse(
 )  {
 
     fun toImage(): Image {
-        return Image(id, url)
+        return Image(imageId = id, url = url)
     }
 }
 
 data class ImageModel(
     var showOverlay: Boolean = false,
-    val imageId: String,
+    val imageId: Int,
     val url: String
 )
