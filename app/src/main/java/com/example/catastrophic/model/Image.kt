@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 
 @Entity
 data class Image(
-    @PrimaryKey(autoGenerate = true) var id: Int = 0,
+    @PrimaryKey var id: Int = 0,
     @ColumnInfo(name="imageId") val imageId: String,
     @ColumnInfo(name = "url") val url: String
 )  {
